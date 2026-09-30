@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>SmartDoor Zentrale</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+</head>
+
+<body>
+
+    <main>
+
+        <h1>SmartDoor Zentrale</h1>
+
+        <div class="status">
+
+            <p>
+                Licht:
+                <strong id="licht">
+                    unbekannt
+                </strong>
+            </p>
+
+            <p>
+                Schloss:
+                <strong id="schloss">
+                    unbekannt
+                </strong>
+            </p>
+
+            <p>
+                Bewegung:
+                <strong id="bewegung">
+                    unbekannt
+                </strong>
+            </p>
+
+            <p>
+                Helligkeit:
+                <strong id="helligkeit">
+                    0
+                </strong>
+            </p>
+
+        </div>
+
+    	<h2>Steuerung</h2>
+
+	<div class="steuerung">
+
+    	   <button onclick="lichtAn()">
+        	Licht AN
+    	   </button>
+	
+    	   <button onclick="lichtAus()">
+        	Licht AUS
+	   </button>
+
+	</div>
+
+    </main>
+
+    <script src="/static/script.js"></script>
+
+</body>
+
+</html>

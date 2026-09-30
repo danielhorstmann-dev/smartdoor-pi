@@ -1,0 +1,25 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+}
+
+main {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+.status {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.status p {
+    font-size: 18px;
+}
