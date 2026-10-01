@@ -13,6 +13,10 @@ function statusLaden() {
             ).innerText = data.schloss;
 
             document.getElementById(
+                "tuer"
+            ).innerText ) data.tuer;
+
+            document.getElementById(
                 "bewegung"
             ).innerText = data.bewegung;
 

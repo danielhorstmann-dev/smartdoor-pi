@@ -1,11 +1,13 @@
 #include "Tuersteuerung.h"
 
-Tuersteuerung::Tuersteuerung(int servoPin) {
+Tuersteuerung::Tuersteuerung(int servoPin, Tuerkontakt& tuerKontakt)
+  : tuerKontakt(tuerKontakt)
+{
   this->servoPin = servoPin;
   tuerEntriegelt = false;
+  tuerWurdeGeoeffnet = false;
   entriegeltSeit = 0;
-  offenDauer = 5000;
-  automatischVerriegeln = false;
+  oeffnungsTimeout = 10000;
 }
 
 void Tuersteuerung::begin() {
@@ -15,21 +17,46 @@ void Tuersteuerung::begin() {
 }
 
 void Tuersteuerung::pruefen() {
-  if (automatischVerriegeln &&
-      millis() - entriegeltSeit >= offenDauer) {
-        
-    Serial.println("Tuer automatisch verriegelt");  
+
+  if (!tuerEntriegelt) {
+    return;
+  }
+
+  if (!tuerWurdeGeoeffnet) {
+    if (tuerKontakt.istOffen()) {
+      tuerWurdeGeoeffnet = true;
+
+      Serial.println("Tuer wurde geoeffnet");
+
+      return;
+    }
+
+    if (millis() - entriegeltSeit >= oeffnungsTimeout) {
+          
+      Serial.println("Tuer wurde nicht geoeffnet");
+      Serial.println("Automatische Verriegelung");  
+
+      verriegeln();
+    }
+
+    return;
+  }
+
+  if (tuerKontakt.istGeschlossen()) {
+    Serial.println("Tuer wurde geschlossen");
+    Serial.println("Automatische Verriegelung");
 
     verriegeln();
   }
+
 }
 
 void Tuersteuerung::entriegeln() {
   servo.write(90);
   tuerEntriegelt = true;
+  tuerWurdeGeoeffnet = false;
 
   entriegeltSeit = millis();
-  automatischVerriegeln = true;
 
   Serial.println("Tuer ENTRIEGELT");
 }
@@ -37,8 +64,7 @@ void Tuersteuerung::entriegeln() {
 void Tuersteuerung::verriegeln() {
   servo.write(0);
   tuerEntriegelt = false;
-
-  automatischVerriegeln = false;
+  tuerWurdeGeoeffnet = false;
 
   Serial.println("Tuer VERRIEGELT");
 }

@@ -8,6 +8,7 @@ Mqttsteuerung::Mqttsteuerung(
     int port,
     Lichtsteuerung& licht,
     Tuersteuerung& tuer,
+    Tuerkontakt& tuerKontakt,
     Zugangssteuerung& zugang
 )
     : broker(broker),
@@ -15,15 +16,16 @@ Mqttsteuerung::Mqttsteuerung(
       mqttClient(wifiClient),
       licht(licht),
       tuer(tuer),
+      tuerKontakt(tuerKontakt),
       zugang(zugang)
 {
-  letzterVerbindungsversuch = 0;
-  reconnectIntervall = 5000;
+    letzterVerbindungsversuch = 0;
+    reconnectIntervall = 5000;
 
-  letzterStatus = 0;
-  statusIntervall = 2000;
+    letzterStatus = 0;
+    statusIntervall = 2000;
 
-  instanz = this;
+    instanz = this;
 }
 
 
@@ -41,6 +43,7 @@ void Mqttsteuerung::begin() {
     verbinden();
 }
 
+
 void Mqttsteuerung::callback(
     char* topic,
     byte* payload,
@@ -56,6 +59,7 @@ void Mqttsteuerung::callback(
         );
     }
 }
+
 
 void Mqttsteuerung::nachrichtEmpfangen(
     char* topic,
@@ -92,61 +96,126 @@ void Mqttsteuerung::nachrichtEmpfangen(
 
             licht.manuellAusschalten();
         }
-    } else if (String(topic) == "smartdoor/tuer/befehl") {
+    }
+
+    else if (
+        String(topic) ==
+        "smartdoor/tuer/befehl"
+    ) {
+
         if (nachricht == "entriegeln") {
             tuer.entriegeln();
         }
+
         if (nachricht == "verriegeln") {
             tuer.verriegeln();
         }
-    } else if (String(topic) == "smartdoor/automatik/befehl") {
+    }
+
+    else if (
+        String(topic) ==
+        "smartdoor/automatik/befehl"
+    ) {
+
         if (nachricht == "an") {
             licht.automatikEinschalten();
         }
+
         if (nachricht == "aus") {
             licht.automatikAusschalten();
         }
-    } else if (String(topic) == "smartdoor/pin/aendern") {
-        int trennstelle1= nachricht.indexOf(';');
-        int trennstelle2 = nachricht.indexOf(';', trennstelle1 + 1);
+    }
 
-        if (trennstelle1 == -1 || trennstelle2 == -1) {
-            Serial.println("PIN-Aenderung: Ungueltige Daten");
+    else if (
+        String(topic) ==
+        "smartdoor/pin/aendern"
+    ) {
+
+        int trennstelle1 =
+            nachricht.indexOf(';');
+
+        int trennstelle2 =
+            nachricht.indexOf(
+                ';',
+                trennstelle1 + 1
+            );
+
+        if (
+            trennstelle1 == -1 ||
+            trennstelle2 == -1
+        ) {
+
+            Serial.println(
+                "PIN-Aenderung: Ungueltige Daten"
+            );
+
             return;
         }
 
-        String altePin = nachricht.substring(0, trennstelle1);
-        String neuePin = nachricht.substring(trennstelle1 + 1, trennstelle2);
-        String bestaetigung = nachricht.substring(trennstelle2 + 1);
-        String meldung;
-        
-        bool erfolgreich = 
-            zugang.pinAendern(
-                altePin, 
-                neuePin, 
-                bestaetigung, 
-                meldung
+        String altePin =
+            nachricht.substring(
+                0,
+                trennstelle1
             );
-        
+
+        String neuePin =
+            nachricht.substring(
+                trennstelle1 + 1,
+                trennstelle2
+            );
+
+        String bestaetigung =
+            nachricht.substring(
+                trennstelle2 + 1
+            );
+
+        String meldung;
+
+        zugang.pinAendern(
+            altePin,
+            neuePin,
+            bestaetigung,
+            meldung
+        );
+
         Serial.println(meldung);
-    } else if (String(topic) == "smartdoor/pin/reset") {
-        int trennstelle = nachricht.indexOf(';');
+    }
+
+    else if (
+        String(topic) ==
+        "smartdoor/pin/reset"
+    ) {
+
+        int trennstelle =
+            nachricht.indexOf(';');
 
         if (trennstelle == -1) {
-            Serial.println("PIN-Reset: Ungueltige Daten");
+
+            Serial.println(
+                "PIN-Reset: Ungueltige Daten"
+            );
+
             return;
         }
 
-        String neuePin = nachricht.substring(0, trennstelle);
-        String bestaetigung = nachricht.substring(trennstelle + 1);
+        String neuePin =
+            nachricht.substring(
+                0,
+                trennstelle
+            );
+
+        String bestaetigung =
+            nachricht.substring(
+                trennstelle + 1
+            );
+
         String meldung;
 
-        bool erfolgreich =
-            zugang.pinZuruecksetzen(
-                neuePin, 
-                bestaetigung, 
-                meldung
-            );
+        zugang.pinZuruecksetzen(
+            neuePin,
+            bestaetigung,
+            meldung
+        );
 
         Serial.println(meldung);
     }
@@ -159,9 +228,14 @@ void Mqttsteuerung::verbinden() {
         "Verbinde mit MQTT-Broker..."
     );
 
-    if (mqttClient.connect("SmartDoorESP32")) {
+    if (
+        mqttClient.connect(
+            "SmartDoorESP32"
+        )
+    ) {
 
         Serial.println(" erfolgreich");
+
 
         mqttClient.subscribe(
             "smartdoor/licht/befehl"
@@ -183,15 +257,25 @@ void Mqttsteuerung::verbinden() {
             "smartdoor/pin/reset"
         );
 
+
         senden(
             "smartdoor/system/status",
             "online"
         );
 
+        // Nach Verbindungsaufbau direkt
+        // den aktuellen Zustand übertragen
+        statusSenden();
+
     } else {
 
-        Serial.print(" FEHLER, Status: ");
-        Serial.println(mqttClient.state());
+        Serial.print(
+            " FEHLER, Status: "
+        );
+
+        Serial.println(
+            mqttClient.state()
+        );
     }
 }
 
@@ -200,10 +284,14 @@ void Mqttsteuerung::pruefen() {
 
     if (!mqttClient.connected()) {
 
-        if (millis() - letzterVerbindungsversuch
-            >= reconnectIntervall) {
+        if (
+            millis() -
+            letzterVerbindungsversuch
+            >= reconnectIntervall
+        ) {
 
-            letzterVerbindungsversuch = millis();
+            letzterVerbindungsversuch =
+                millis();
 
             verbinden();
         }
@@ -211,11 +299,20 @@ void Mqttsteuerung::pruefen() {
         return;
     }
 
+
     mqttClient.loop();
 
-    if (millis() - letzterStatus >= statusIntervall) {
-      letzterStatus = millis();
-      statusSenden();
+
+    if (
+        millis() -
+        letzterStatus
+        >= statusIntervall
+    ) {
+
+        letzterStatus =
+            millis();
+
+        statusSenden();
     }
 }
 
@@ -235,12 +332,16 @@ void Mqttsteuerung::senden(
     );
 }
 
+
 void Mqttsteuerung::statusSenden() {
 
     senden(
         "smartdoor/licht/status",
-        licht.istAn() ? "an" : "aus"
+        licht.istAn()
+            ? "an"
+            : "aus"
     );
+
 
     senden(
         "smartdoor/schloss/status",
@@ -248,6 +349,17 @@ void Mqttsteuerung::statusSenden() {
             ? "entriegelt"
             : "verriegelt"
     );
+
+
+    // NEU:
+    // Tatsächlicher Zustand der Tür
+    senden(
+        "smartdoor/tuer/status",
+        tuerKontakt.istOffen()
+            ? "offen"
+            : "geschlossen"
+    );
+
 
     senden(
         "smartdoor/bewegung",
@@ -258,7 +370,9 @@ void Mqttsteuerung::statusSenden() {
 
 
     String helligkeit =
-        String(licht.getHelligkeit());
+        String(
+            licht.getHelligkeit()
+        );
 
     senden(
         "smartdoor/helligkeit",

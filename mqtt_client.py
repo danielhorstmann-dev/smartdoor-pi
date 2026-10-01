@@ -10,6 +10,7 @@ class MqttClient:
         self.status = {
             "licht": "unbekannt",
             "schloss": "unbekannt",
+            "tuer": "unbekannt",
             "bewegung": "unbekannt",
             "helligkeit": 0
         }
@@ -71,6 +72,9 @@ class MqttClient:
 
         elif message.topic == "smartdoor/schloss/status":
             self.status["schloss"] = payload
+
+        elif message.topic == "smartdoor/tuer/status":
+            self.status["tuer"] = payload
 
         elif message.topic == "smartdoor/bewegung":
             self.status["bewegung"] = payload

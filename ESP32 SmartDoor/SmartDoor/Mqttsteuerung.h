@@ -4,8 +4,10 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+
 #include "Lichtsteuerung.h"
 #include "Tuersteuerung.h"
+#include "Tuerkontakt.h"
 #include "Zugangssteuerung.h"
 
 class Mqttsteuerung {
@@ -13,12 +15,15 @@ class Mqttsteuerung {
 private:
     const char* broker;
     int port;
+
     unsigned long letzterVerbindungsversuch;
     unsigned long reconnectIntervall;
 
     Lichtsteuerung& licht;
     Tuersteuerung& tuer;
+    Tuerkontakt& tuerKontakt;
     Zugangssteuerung& zugang;
+
     static Mqttsteuerung* instanz;
 
     unsigned long letzterStatus;
@@ -49,6 +54,7 @@ public:
         int port,
         Lichtsteuerung& licht,
         Tuersteuerung& tuer,
+        Tuerkontakt& tuerKontakt,
         Zugangssteuerung& zugang
     );
 

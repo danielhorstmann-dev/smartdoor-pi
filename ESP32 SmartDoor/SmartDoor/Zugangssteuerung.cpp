@@ -1,24 +1,33 @@
 #include "Zugangssteuerung.h"
 
-Zugangssteuerung::Zugangssteuerung(Tuersteuerung& tuer, Statusanzeige& status, Displaysteuerung& display)
+Zugangssteuerung::Zugangssteuerung(
+  Tuersteuerung& tuer,
+  Tuerkontakt& tuerKontakt,
+  Statusanzeige& status,
+  Displaysteuerung& display
+)
   : keypad(
-    makeKeymap(tasten),
-    zeilenPins,
-    spaltenPins,
-    ZEILEN,
-    SPALTEN
-  ),
-  tuer(tuer),
-  status(status),
-  display(display)
+      makeKeymap(tasten),
+      zeilenPins,
+      spaltenPins,
+      ZEILEN,
+      SPALTEN
+    ),
+    tuer(tuer),
+    tuerKontakt(tuerKontakt),
+    status(status),
+    display(display)
 {
   richtigePin = "1234";
   eingegebenePin = "";
+
   rueckmeldungSeit = 0;
   rueckmeldungDauer = 3000;
   rueckmeldungAktiv = false;
+
   fehlversuche = 0;
   gesperrt = false;
+
   sperreSeit = 0;
   sperrDauer = 30000;
   letzteAnzeigeSekunde = 0;
@@ -28,6 +37,7 @@ void Zugangssteuerung::rueckmeldungPruefen() {
 
   if (rueckmeldungAktiv &&
       millis() - rueckmeldungSeit >= rueckmeldungDauer) {
+
     display.bereit();
     status.bereit();
 
@@ -36,6 +46,7 @@ void Zugangssteuerung::rueckmeldungPruefen() {
 }
 
 void Zugangssteuerung::pruefen() {
+
   sperrePruefen();
 
   if (gesperrt) {
@@ -44,6 +55,8 @@ void Zugangssteuerung::pruefen() {
 
   rueckmeldungPruefen();
 
+  // Während der 3 Sekunden Rückmeldung
+  // keine neue PIN-Eingabe verarbeiten
   if (rueckmeldungAktiv) {
     return;
   }
@@ -56,6 +69,7 @@ void Zugangssteuerung::pruefen() {
 }
 
 void Zugangssteuerung::begin() {
+
   preferences.begin("smartdoor", false);
 
   richtigePin = preferences.getString("pin", "1234");
@@ -70,16 +84,17 @@ bool Zugangssteuerung::pinAendern(
   String pinBestaetigung,
   String& fehlermeldung
 ) {
+
   if (altePin != richtigePin) {
     fehlermeldung = "Aktuelle PIN ist falsch";
     return false;
   }
 
   if (!neuePinPruefen(
-      neuePin, 
-      pinBestaetigung, 
-      fehlermeldung
-    )) {
+        neuePin,
+        pinBestaetigung,
+        fehlermeldung
+      )) {
     return false;
   }
 
@@ -99,73 +114,71 @@ bool Zugangssteuerung::neuePinPruefen(
   String pinBestaetigung,
   String& fehlermeldung
 ) {
-  
-    if (neuePin.length() < 4 ||
-        neuePin.length() > 8) {
 
-        fehlermeldung =
-            "Neue PIN muss 4 bis 8 Ziffern haben";
+  if (neuePin.length() < 4 ||
+      neuePin.length() > 8) {
 
-        return false;
+    fehlermeldung =
+      "Neue PIN muss 4 bis 8 Ziffern haben";
+
+    return false;
+  }
+
+  for (int i = 0; i < neuePin.length(); i++) {
+
+    if (!isDigit(neuePin[i])) {
+
+      fehlermeldung =
+        "PIN darf nur Zahlen enthalten";
+
+      return false;
     }
+  }
 
+  if (neuePin != pinBestaetigung) {
 
-    for (int i = 0; i < neuePin.length(); i++) {
+    fehlermeldung =
+      "Neue PINs stimmen nicht ueberein";
 
-        if (!isDigit(neuePin[i])) {
+    return false;
+  }
 
-            fehlermeldung =
-                "PIN darf nur Zahlen enthalten";
-
-            return false;
-        }
-    }
-
-
-    if (neuePin != pinBestaetigung) {
-
-        fehlermeldung =
-            "Neue PINs stimmen nicht ueberein";
-
-        return false;
-    }
-
-    return true;
+  return true;
 }
 
 bool Zugangssteuerung::pinZuruecksetzen(
-    String neuePin,
-    String pinBestaetigung,
-    String& fehlermeldung
+  String neuePin,
+  String pinBestaetigung,
+  String& fehlermeldung
 ) {
 
-    if (!neuePinPruefen(
-        neuePin, 
-        pinBestaetigung, 
+  if (!neuePinPruefen(
+        neuePin,
+        pinBestaetigung,
         fehlermeldung
       )) {
-      return false;
-    }
+    return false;
+  }
 
-    richtigePin = neuePin;
+  richtigePin = neuePin;
 
-    preferences.putString(
-        "pin",
-        richtigePin
-    );
+  preferences.putString(
+    "pin",
+    richtigePin
+  );
 
+  fehlermeldung =
+    "PIN erfolgreich zurueckgesetzt";
 
-    fehlermeldung =
-        "PIN erfolgreich zurueckgesetzt";
+  Serial.println(
+    "PIN wurde ueber Web-Admin zurueckgesetzt"
+  );
 
-    Serial.println(
-        "PIN wurde ueber Web-Admin zurueckgesetzt"
-    );
-
-    return true;
+  return true;
 }
 
 void Zugangssteuerung::tasteVerarbeiten(char taste) {
+
   if (taste >= '0' && taste <= '9') {
 
     eingegebenePin += taste;
@@ -179,7 +192,9 @@ void Zugangssteuerung::tasteVerarbeiten(char taste) {
     }
 
     Serial.println();
+
   } else if (taste == '*') {
+
     eingegebenePin = "";
 
     display.bereit();
@@ -187,21 +202,34 @@ void Zugangssteuerung::tasteVerarbeiten(char taste) {
     Serial.println("PIN-Eingabe geloescht.");
 
   } else if (taste == '#') {
+
     pinPruefen();
   }
 }
 
 void Zugangssteuerung::pinPruefen() {
 
-  if (eingegebenePin == richtigePin) {
+if (eingegebenePin == richtigePin) {
 
     Serial.println("PIN korrekt - Zugang erlaubt");
 
     fehlversuche = 0;
 
-    tuer.entriegeln();
-    status.erfolg();
-    display.zugangErlaubt();
+    // Nur entriegeln, wenn aktuell verriegelt
+    if (!tuer.istEntriegelt()) {
+
+        tuer.entriegeln();
+
+        status.erfolg();
+        display.zugangErlaubt();
+
+    } else {
+
+        Serial.println("Tuer ist bereits entriegelt");
+
+        status.erfolg();
+        display.zugangErlaubt();
+    }
   } else {
 
     fehlversuche++;
@@ -209,41 +237,51 @@ void Zugangssteuerung::pinPruefen() {
     Serial.println("PIN falsch - Fehlversuch:");
     Serial.println(fehlversuche);
 
-    tuer.verriegeln();
-
     if (fehlversuche >= 3) {
+
       gesperrt = true;
       sperreSeit = millis();
 
       status.gesperrt();
       display.gesperrt(30);
 
-      Serial.println("Zugang fuer 30 Sekunden gesperrt");
+      Serial.println(
+        "Zugang fuer 30 Sekunden gesperrt"
+      );
+
     } else {
+
       status.fehler();
       display.zugangVerweigert();
     }
   }
 
+  // PIN-Puffer nach jeder Prüfung löschen
   eingegebenePin = "";
 
+  // Drei Sekunden Rückmeldung anzeigen
   rueckmeldungSeit = millis();
   rueckmeldungAktiv = true;
 }
 
 void Zugangssteuerung::sperrePruefen() {
+
   if (!gesperrt) {
     return;
   }
 
-  unsigned long restzeit = getRestlicheSperrzeit();
+  unsigned long restzeit =
+    getRestlicheSperrzeit();
 
   if (restzeit != letzteAnzeigeSekunde) {
+
     letzteAnzeigeSekunde = restzeit;
+
     display.gesperrt(restzeit);
   }
 
   if (millis() - sperreSeit >= sperrDauer) {
+
     gesperrt = false;
     fehlversuche = 0;
     rueckmeldungAktiv = false;
@@ -252,7 +290,9 @@ void Zugangssteuerung::sperrePruefen() {
     status.bereit();
     display.bereit();
 
-    Serial.println("Zugangssperre aufgehoben");
+    Serial.println(
+      "Zugangssperre aufgehoben"
+    );
   }
 }
 
@@ -265,11 +305,13 @@ int Zugangssteuerung::getFehlversuche() {
 }
 
 unsigned long Zugangssteuerung::getRestlicheSperrzeit() {
+
   if (!gesperrt) {
     return 0;
   }
 
-  unsigned long vergangen = millis() - sperreSeit;
+  unsigned long vergangen =
+    millis() - sperreSeit;
 
   if (vergangen >= sperrDauer) {
     return 0;

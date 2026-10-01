@@ -46,6 +46,38 @@ void Displaysteuerung::gesperrt(unsigned long sekunden) {
   lcd.print(" Sek.    ");
 }
 
+void Displaysteuerung::tuerVerriegelt() {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Tuer");
+  lcd.setCursor(0,1);
+  lcd.print("verriegelt");
+}
+
+void Displaysteuerung::tuerOffen() {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Tuer noch offen");
+  lcd.setCursor(0,1);
+  lcd.print("Schliessen!");
+}
+
+void Displaysteuerung::tuerGeoeffnet() {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Tuer");
+  lcd.setCursor(0,1);
+  lcd.print("geoeffnet");
+}
+
+void Displaysteuerung::tuerGeschlossen() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Tuer");
+  lcd.setCursor(0, 1);
+  lcd.print("geschlossen");
+}
+
 void Displaysteuerung::pinEingabe(int anzahl) {
 
   lcd.setCursor(0,1);

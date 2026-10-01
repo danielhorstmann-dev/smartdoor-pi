@@ -3,21 +3,24 @@
 
 #include <Arduino.h>
 #include <ESP32Servo.h>
+#include "Tuerkontakt.h"
 
 class Tuersteuerung {
 
   private:
     int servoPin;
     bool tuerEntriegelt;
+    bool tuerWurdeGeoeffnet;
 
     unsigned long entriegeltSeit;
-    unsigned long offenDauer;
-    bool automatischVerriegeln;
+    unsigned long oeffnungsTimeout;
+
+    Tuerkontakt& tuerKontakt;
 
     Servo servo;
   
   public:
-    Tuersteuerung(int servoPin);
+    Tuersteuerung(int servoPin, Tuerkontakt& tuerKontakt);
 
     void begin();
     void pruefen();

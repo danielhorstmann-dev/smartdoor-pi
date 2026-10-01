@@ -3,10 +3,12 @@
 
 #include <Arduino.h>
 #include <Keypad.h>
+#include <Preferences.h>
+
 #include "Tuersteuerung.h"
+#include "Tuerkontakt.h"
 #include "Statusanzeige.h"
 #include "Displaysteuerung.h"
-#include <Preferences.h>
 
 class Zugangssteuerung {
   private:
@@ -26,6 +28,7 @@ class Zugangssteuerung {
     Keypad keypad;
 
     Tuersteuerung& tuer;
+    Tuerkontakt& tuerKontakt;
     Statusanzeige& status;
     Displaysteuerung& display;
 
@@ -47,9 +50,8 @@ class Zugangssteuerung {
     void pinPruefen();
 
     void rueckmeldungPruefen();
-
     void sperrePruefen();
-    
+
     bool neuePinPruefen(
       String neuePin,
       String pinBestaetigung,
@@ -57,10 +59,14 @@ class Zugangssteuerung {
     );
 
   public:
-    Zugangssteuerung(Tuersteuerung& tuer, Statusanzeige& status, Displaysteuerung& display);
+    Zugangssteuerung(
+      Tuersteuerung& tuer,
+      Tuerkontakt& tuerKontakt,
+      Statusanzeige& status,
+      Displaysteuerung& display
+    );
 
     void pruefen();
-
     void begin();
 
     bool pinAendern(
@@ -79,7 +85,6 @@ class Zugangssteuerung {
     bool istGesperrt();
     int getFehlversuche();
     unsigned long getRestlicheSperrzeit();
-
 };
 
 #endif

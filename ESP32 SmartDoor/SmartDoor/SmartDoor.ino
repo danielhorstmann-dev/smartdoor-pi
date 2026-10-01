@@ -7,6 +7,7 @@
 #include "Statusanzeige.h"
 #include "Displaysteuerung.h"
 #include "Mqttsteuerung.h"
+#include "Tuerkontakt.h"
 
 const char* ssid = "FRITZ!Box 6670 II 2,4 GHz";
 const char* passwort = "42855128522883691014";
@@ -35,11 +36,78 @@ void wlanVerbinden() {
 WebServer server(80);
 
 Lichtsteuerung licht(23, 19, 34, 27, 2200);
-Tuersteuerung tuer(18);
+Tuerkontakt tuerKontakt(4);
+Tuersteuerung tuer(18, tuerKontakt);
 Statusanzeige status(2, 12, 15);
 Displaysteuerung display;
-Zugangssteuerung zugang(tuer, status, display);
-Mqttsteuerung mqtt("192.168.178.78", 1883, licht, tuer, zugang);
+Zugangssteuerung zugang(tuer, tuerKontakt, status, display);
+Mqttsteuerung mqtt("192.168.178.78", 1883, licht, tuer, tuerKontakt, zugang);
+
+bool tuerWarOffen = false;
+
+bool tuerMeldungAktiv = false;
+unsigned long tuerMeldungSeit = 0;
+const unsigned long tuerMeldungDauer = 2000;
+
+void tuerstatusPruefen() {
+
+    bool tuerIstOffen =
+        tuerKontakt.istOffen();
+
+
+    // -----------------------------
+    // Zustandsänderung erkennen
+    // -----------------------------
+
+    if (tuerIstOffen != tuerWarOffen) {
+
+        tuerWarOffen =
+            tuerIstOffen;
+
+
+        if (tuerIstOffen) {
+
+            Serial.println(
+                "Tuerstatus: OFFEN"
+            );
+
+            display.tuerGeoeffnet();
+
+        } else {
+
+            Serial.println(
+                "Tuerstatus: GESCHLOSSEN"
+            );
+
+            display.tuerGeschlossen();
+        }
+
+
+        tuerMeldungSeit =
+            millis();
+
+        tuerMeldungAktiv =
+            true;
+    }
+
+
+    // -----------------------------
+    // Nach 2 Sekunden zurück
+    // auf Bereitschaft
+    // -----------------------------
+
+    if (
+        tuerMeldungAktiv &&
+        millis() - tuerMeldungSeit
+            >= tuerMeldungDauer
+    ) {
+
+        display.bereit();
+
+        tuerMeldungAktiv =
+            false;
+    }
+}
 
 void setup() {
     Serial.begin(115200);
@@ -49,6 +117,8 @@ void setup() {
     Serial.println("===== ESP32 GESTARTET =====");
 
     licht.begin();
+    tuerKontakt.begin();
+    tuerWarOffen = tuerKontakt.istOffen();
     tuer.begin();
     status.begin();
     display.begin();
@@ -62,6 +132,8 @@ void loop() {
     
     licht.pruefen();
     zugang.pruefen();
+    tuerKontakt.pruefen();
+    tuerstatusPruefen();
     tuer.pruefen();
     status.pruefen();
 }

@@ -21,6 +21,10 @@ class Displaysteuerung {
     void pinEingabe(int anzahl);
     void zugangErlaubt();
     void zugangVerweigert();
+    void tuerVerriegelt();
+    void tuerOffen();
+    void tuerGeoeffnet();
+    void tuerGeschlossen();
     void gesperrt(unsigned long sekunden);
 };
 
