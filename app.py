@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from mqtt_client import MqttClient
 
 
@@ -75,6 +75,49 @@ def automatik_aus():
     )
 
     return "Automatik AUS gesendet"
+
+@app.route("/api/pin/aendern", methods=["POST"])
+def pin_aendern():
+
+    alte_pin = request.form.get("altePin")
+    neue_pin = request.form.get("neuePin")
+    bestaetigung = request.form.get(
+        "pinBestaetigung"
+    )
+
+    nachricht = (
+        f"{alte_pin};"
+        f"{neue_pin};"
+        f"{bestaetigung}"
+    )
+
+    mqtt.publish(
+        "smartdoor/pin/aendern",
+        nachricht
+    )
+
+    return "PIN-Aenderung gesendet"
+
+
+@app.route("/api/pin/reset", methods=["POST"])
+def pin_reset():
+
+    neue_pin = request.form.get("neuePin")
+    bestaetigung = request.form.get(
+        "pinBestaetigung"
+    )
+
+    nachricht = (
+        f"{neue_pin};"
+        f"{bestaetigung}"
+    )
+
+    mqtt.publish(
+        "smartdoor/pin/reset",
+        nachricht
+    )
+
+    return "PIN-Reset gesendet"
 
 
 if __name__ == "__main__":
