@@ -14,7 +14,7 @@ function statusLaden() {
 
             document.getElementById(
                 "tuer"
-            ).innerText ) data.tuer;
+            ).innerText = data.tuer;
 
             document.getElementById(
                 "bewegung"
