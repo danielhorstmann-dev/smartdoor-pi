@@ -43,6 +43,42 @@ function lichtAus() {
     );
 }
 
+function tuerEntriegeln() {
+    fetch(
+        "/api/tuer/entriegeln",
+        {
+            method: "POST"
+        }
+    );
+}
+
+function tuerVerriegeln() {
+    fetch(
+        "/api/tuer/verriegeln",
+        {
+            method: "POST"
+        }
+    );
+}
+
+function automatikAn() {
+    fetch(
+        "/api/automatik/an",
+        {
+            method: "POST"
+        }
+    );
+}
+
+function automatikAus() {
+    fetch(
+        "/api/automatik/aus",
+        {
+            method: "POST"
+        }
+    );
+}
+
 statusLaden();
 
 setInterval(
