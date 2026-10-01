@@ -111,6 +111,10 @@ function pinAendern() {
             body: daten
         }
     );
+
+    document.getElementById("altePin").value = "";
+    document.getElementById("neuePin").value = "";
+    document.getElementById("pinBestaetigung").value = "";
 }
 
 
@@ -139,6 +143,9 @@ function pinZuruecksetzen() {
             body: daten
         }
     );
+
+    document.getElementById("resetNeuePin").value = "";
+    document.getElementById("resetBestaetigung").value = "";
 }
 
 statusLaden();

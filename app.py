@@ -1,14 +1,48 @@
-from flask import Flask, render_template, jsonify, request
+from flask import (
+    Flask, 
+    render_template, 
+    jsonify, 
+    request,
+    Response
+)
 from mqtt_client import MqttClient
 
 
 app = Flask(__name__)
 
 mqtt = MqttClient()
+WEB_BENUTZER = "admin"
+WEB_PASSWORT = "smartdoor"
+
+def authentifiziert():
+
+    auth = request.authorization
+
+    return (
+        auth is not None
+        and auth.username == WEB_BENUTZER
+        and auth.password == WEB_PASSWORT
+    )
+
+
+def anmeldung_erforderlich():
+
+    return Response(
+        "Anmeldung erforderlich",
+        401,
+        {
+            "WWW-Authenticate":
+            'Basic realm="SmartDoor"'
+        }
+    )
 
 
 @app.route("/")
 def index():
+
+    if not authentifiziert():
+        return anmeldung_erforderlich()
+    
     return render_template("index.html")
 
 
@@ -22,6 +56,9 @@ def status():
 @app.route("/api/licht/an", methods=["POST"])
 def licht_an():
 
+    if not authentifiziert():
+        return anmeldung_erforderlich()
+
     mqtt.publish(
         "smartdoor/licht/befehl",
         "an"
@@ -32,6 +69,9 @@ def licht_an():
 
 @app.route("/api/licht/aus", methods=["POST"])
 def licht_aus():
+    
+    if not authentifiziert():
+        return anmeldung_erforderlich()
 
     mqtt.publish(
         "smartdoor/licht/befehl",
@@ -42,6 +82,10 @@ def licht_aus():
 
 @app.route("/api/tuer/entriegeln", methods=["POST"])
 def tuer_entriegeln():
+    
+    if not authentifiziert():
+        return anmeldung_erforderlich()
+
     mqtt.publish(
         "smartdoor/tuer/befehl",
         "entriegeln"
@@ -51,6 +95,10 @@ def tuer_entriegeln():
 
 @app.route("/api/tuer/verriegeln", methods=["POST"])
 def tuer_verriegeln():
+    
+    if not authentifiziert():
+        return anmeldung_erforderlich()
+
     mqtt.publish(
         "smartdoor/tuer/befehl",
         "verriegeln"
@@ -60,6 +108,10 @@ def tuer_verriegeln():
 
 @app.route("/api/automatik/an", methods=["POST"])
 def automatik_an():
+    
+    if not authentifiziert():
+        return anmeldung_erforderlich()
+
     mqtt.publish(
         "smartdoor/automatik/befehl",
         "an"
@@ -69,6 +121,10 @@ def automatik_an():
 
 @app.route("/api/automatik/aus", methods=["POST"])
 def automatik_aus():
+    
+    if not authentifiziert():
+        return anmeldung_erforderlich()
+
     mqtt.publish(
         "smartdoor/automatik/befehl",
         "aus"
@@ -78,6 +134,10 @@ def automatik_aus():
 
 @app.route("/api/pin/aendern", methods=["POST"])
 def pin_aendern():
+    
+    if not authentifiziert():
+        return anmeldung_erforderlich()
+
 
     alte_pin = request.form.get("altePin")
     neue_pin = request.form.get("neuePin")
@@ -101,6 +161,10 @@ def pin_aendern():
 
 @app.route("/api/pin/reset", methods=["POST"])
 def pin_reset():
+    
+    if not authentifiziert():
+        return anmeldung_erforderlich()
+        
 
     neue_pin = request.form.get("neuePin")
     bestaetigung = request.form.get(
