@@ -9,7 +9,9 @@ Mqttsteuerung::Mqttsteuerung(
     Lichtsteuerung& licht,
     Tuersteuerung& tuer,
     Tuerkontakt& tuerKontakt,
-    Zugangssteuerung& zugang
+    Zugangssteuerung& zugang,
+    Statusanzeige& status,
+    Displaysteuerung& display
 )
     : broker(broker),
       port(port),
@@ -17,7 +19,9 @@ Mqttsteuerung::Mqttsteuerung(
       licht(licht),
       tuer(tuer),
       tuerKontakt(tuerKontakt),
-      zugang(zugang)
+      zugang(zugang),
+      status(status),
+      display(display)
 {
     letzterVerbindungsversuch = 0;
     reconnectIntervall = 5000;
@@ -105,6 +109,9 @@ void Mqttsteuerung::nachrichtEmpfangen(
 
         if (nachricht == "entriegeln") {
             tuer.entriegeln();
+
+            status.erfolg();
+            display.zugangErlaubt();
         }
 
         if (nachricht == "verriegeln") {

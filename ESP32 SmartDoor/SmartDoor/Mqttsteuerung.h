@@ -9,6 +9,8 @@
 #include "Tuersteuerung.h"
 #include "Tuerkontakt.h"
 #include "Zugangssteuerung.h"
+#include "Statusanzeige.h"
+#include "Displaysteuerung.h"
 
 class Mqttsteuerung {
 
@@ -23,6 +25,8 @@ private:
     Tuersteuerung& tuer;
     Tuerkontakt& tuerKontakt;
     Zugangssteuerung& zugang;
+    Statusanzeige& status;
+    Displaysteuerung& display;
 
     static Mqttsteuerung* instanz;
 
@@ -55,7 +59,9 @@ public:
         Lichtsteuerung& licht,
         Tuersteuerung& tuer,
         Tuerkontakt& tuerKontakt,
-        Zugangssteuerung& zugang
+        Zugangssteuerung& zugang,
+        Statusanzeige& status,
+        Displaysteuerung& display
     );
 
     void begin();

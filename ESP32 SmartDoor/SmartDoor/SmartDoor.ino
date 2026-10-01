@@ -41,7 +41,7 @@ Tuersteuerung tuer(18, tuerKontakt);
 Statusanzeige status(2, 12, 15);
 Displaysteuerung display;
 Zugangssteuerung zugang(tuer, tuerKontakt, status, display);
-Mqttsteuerung mqtt("192.168.178.78", 1883, licht, tuer, tuerKontakt, zugang);
+Mqttsteuerung mqtt("192.168.178.78", 1883, licht, tuer, tuerKontakt, zugang, status, display);
 
 bool tuerWarOffen = false;
 
