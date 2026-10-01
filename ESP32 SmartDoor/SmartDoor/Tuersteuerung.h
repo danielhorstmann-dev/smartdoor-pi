@@ -14,6 +14,7 @@ class Tuersteuerung {
 
     unsigned long entriegeltSeit;
     unsigned long oeffnungsTimeout;
+    bool timeoutAusgeloest;
 
     Tuerkontakt& tuerKontakt;
 
@@ -29,6 +30,7 @@ class Tuersteuerung {
     void verriegeln();
 
     bool istEntriegelt();
+    bool wurdeTimeoutAusgeloest();
 
 };
 

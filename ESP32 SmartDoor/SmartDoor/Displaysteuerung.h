@@ -25,6 +25,7 @@ class Displaysteuerung {
     void tuerOffen();
     void tuerGeoeffnet();
     void tuerGeschlossen();
+    void tuerNichtGeoeffnet();
     void gesperrt(unsigned long sekunden);
 };
 

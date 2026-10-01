@@ -49,6 +49,32 @@ bool tuerMeldungAktiv = false;
 unsigned long tuerMeldungSeit = 0;
 const unsigned long tuerMeldungDauer = 2000;
 
+bool timeoutMeldungAktiv = false;
+unsigned long timeoutMeldungSeit = 0;
+const unsigned long timeoutMeldungDauer = 3000;
+
+void timeoutMeldungPruefen() {
+
+    if (tuer.wurdeTimeoutAusgeloest()) {
+
+        display.tuerNichtGeoeffnet();
+
+        timeoutMeldungSeit = millis();
+        timeoutMeldungAktiv = true;
+    }
+
+
+    if (
+        timeoutMeldungAktiv &&
+        millis() - timeoutMeldungSeit >= timeoutMeldungDauer
+    ) {
+
+        display.bereit();
+
+        timeoutMeldungAktiv = false;
+    }
+}
+
 void tuerstatusPruefen() {
 
     bool tuerIstOffen =
@@ -135,5 +161,6 @@ void loop() {
     tuerKontakt.pruefen();
     tuerstatusPruefen();
     tuer.pruefen();
+    timeoutMeldungPruefen();
     status.pruefen();
 }

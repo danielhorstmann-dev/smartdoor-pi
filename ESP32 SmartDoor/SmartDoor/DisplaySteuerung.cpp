@@ -54,6 +54,17 @@ void Displaysteuerung::tuerVerriegelt() {
   lcd.print("verriegelt");
 }
 
+void Displaysteuerung::tuerNichtGeoeffnet() {
+
+    lcd.clear();
+
+    lcd.setCursor(0, 0);
+    lcd.print("Nicht geoeffnet");
+
+    lcd.setCursor(0, 1);
+    lcd.print("Tuer verriegelt");
+}
+
 void Displaysteuerung::tuerOffen() {
   lcd.clear();
   lcd.setCursor(0,0);

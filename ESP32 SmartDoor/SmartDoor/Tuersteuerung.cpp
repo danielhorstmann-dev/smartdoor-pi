@@ -8,6 +8,7 @@ Tuersteuerung::Tuersteuerung(int servoPin, Tuerkontakt& tuerKontakt)
   tuerWurdeGeoeffnet = false;
   entriegeltSeit = 0;
   oeffnungsTimeout = 10000;
+  timeoutAusgeloest = false;
 }
 
 void Tuersteuerung::begin() {
@@ -37,6 +38,8 @@ void Tuersteuerung::pruefen() {
       Serial.println("Automatische Verriegelung");  
 
       verriegeln();
+
+      timeoutAusgeloest = true;
     }
 
     return;
@@ -55,6 +58,7 @@ void Tuersteuerung::entriegeln() {
   servo.write(90);
   tuerEntriegelt = true;
   tuerWurdeGeoeffnet = false;
+  timeoutAusgeloest = false;
 
   entriegeltSeit = millis();
 
@@ -71,4 +75,15 @@ void Tuersteuerung::verriegeln() {
 
 bool Tuersteuerung::istEntriegelt() {
   return tuerEntriegelt;
+}
+
+bool Tuersteuerung::wurdeTimeoutAusgeloest() {
+
+    if (!timeoutAusgeloest) {
+        return false;
+    }
+
+    timeoutAusgeloest = false;
+
+    return true;
 }
