@@ -5,17 +5,11 @@
 <head>
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>SmartDoor Zentrale</title>
 
-    <link
-        rel="stylesheet"
-        href="/static/style.css"
-    >
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
@@ -56,19 +50,43 @@
 
         </div>
 
-    	<h2>Steuerung</h2>
+        <h2>Steuerung</h2>
 
-	<div class="steuerung">
+        <div class="steuerung">
 
-    	   <button onclick="lichtAn()">
-        	Licht AN
-    	   </button>
-	
-    	   <button onclick="lichtAus()">
-        	Licht AUS
-	   </button>
+            <h3>Licht</h3>
 
-	</div>
+            <button onclick="lichtAn()">
+                Licht AN
+            </button>
+
+            <button onclick="lichtAus()">
+                Licht AUS
+            </button>
+
+
+            <h3>Tür</h3>
+
+            <button onclick="tuerEntriegeln()">
+                Tür entriegeln
+            </button>
+
+            <button onclick="tuerVerriegeln()">
+                Tür verriegeln
+            </button>
+
+
+            <h3>Lichtautomatik</h3>
+
+            <button onclick="automatikAn()">
+                Automatik AN
+            </button>
+
+            <button onclick="automatikAus()">
+                Automatik AUS
+            </button>
+
+        </div>
 
     </main>
 
