@@ -22,8 +22,8 @@ class Zugangssteuerung {
       {'*', '0', '#', 'D'}
     };
 
-    byte zeilenPins[ZEILEN] = {13, 14, 16, 17};
-    byte spaltenPins[SPALTEN] = {25, 26, 32, 33};
+    byte zeilenPins[ZEILEN] = {12, 14, 27, 26};
+    byte spaltenPins[SPALTEN] = {25, 33, 32, 21};
 
     Keypad keypad;
 

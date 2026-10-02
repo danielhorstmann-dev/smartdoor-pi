@@ -35,10 +35,10 @@ void wlanVerbinden() {
 
 WebServer server(80);
 
-Lichtsteuerung licht(23, 19, 34, 27, 2200);
-Tuerkontakt tuerKontakt(4);
-Tuersteuerung tuer(18, tuerKontakt);
-Statusanzeige status(2, 12, 15);
+Lichtsteuerung licht(23, 22, 34, 35, 2200);
+Tuerkontakt tuerKontakt(16);
+Tuersteuerung tuer(4, tuerKontakt);
+Statusanzeige status(18, 5, 17);
 Displaysteuerung display;
 Zugangssteuerung zugang(tuer, tuerKontakt, status, display);
 Mqttsteuerung mqtt("192.168.178.78", 1883, licht, tuer, tuerKontakt, zugang, status, display);

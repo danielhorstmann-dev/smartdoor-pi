@@ -8,7 +8,7 @@ Displaysteuerung::Displaysteuerung()
 
 void Displaysteuerung::begin() {
 
-  Wire.begin(21,22);
+  Wire.begin(13,19);
 
   lcd.init();
   lcd.backlight();

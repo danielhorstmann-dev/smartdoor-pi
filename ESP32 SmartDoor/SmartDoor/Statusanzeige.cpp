@@ -18,18 +18,22 @@ void Statusanzeige::begin() {
   pinMode(rotPin, OUTPUT);
   pinMode(gruenPin, OUTPUT);
   pinMode(blauPin, OUTPUT);
-  //pinMode(buzzerPin, OUTPUT);
-  //digitalWrite(buzzerPin, HIGH);
+  
+  ledcAttach(rotPin, 5000, 8);
+  ledcAttach(gruenPin, 5000, 8);
+  ledcAttach(blauPin, 5000, 8);
 
   //aus();
   bereit();
 }
 
 void Statusanzeige::farbeSetzen(bool rot, bool gruen, bool blau) {
-
-  digitalWrite(rotPin, rot ? LOW : HIGH);
-  digitalWrite(gruenPin, gruen ? LOW : HIGH);
-  digitalWrite(blauPin, blau ? LOW : HIGH);
+  ledcWrite(rotPin,   rot   ? 128 : 255);
+  ledcWrite(gruenPin, gruen ? 128 : 255);
+  ledcWrite(blauPin,  blau  ? 128 : 255);
+  //digitalWrite(rotPin, rot ? LOW : HIGH);
+  //digitalWrite(gruenPin, gruen ? LOW : HIGH);
+  //digitalWrite(blauPin, blau ? LOW : HIGH);
 }
 
 void Statusanzeige::aus() {
